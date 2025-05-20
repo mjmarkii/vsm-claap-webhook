@@ -13,10 +13,18 @@ export async function POST(request: Request) {
       fs.mkdirSync(logsDir, { recursive: true });
     }
 
-    // Generate filename using eventId and timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const eventId = payload?.eventId || "unknown";
-    const filename = `${eventId}_${timestamp}.json`;
+    // Get recording details from payload
+    const recording = payload?.event?.recording;
+    const recordingId = recording?.id || "unknown";
+    const channelName =
+      recording?.channel?.name?.replace(/[^a-z0-9]/gi, "_") ||
+      "unknown_channel";
+
+    // Get today's date in YYYYMMDD format
+    const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
+
+    // Generate filename using recording ID, channel name, and date
+    const filename = `${recordingId}_${channelName}_${today}.json`;
     const filePath = path.join(logsDir, filename);
 
     // Write payload to file with pretty formatting
